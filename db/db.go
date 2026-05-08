@@ -35,7 +35,7 @@ func createTables() {
 		description TEXT NOT NULL,
 		location TEXT NOT NULL,
 		dateTime DATETIME NOT NULL,
-		user_id INTEGER
+		FOREIGN KEY(user_id) REFERENCES users(id)
 	)
 	`
 
@@ -45,4 +45,35 @@ func createTables() {
 		panic(fmt.Sprintf("Could not create events table: %v", err))
 	}
 
+	createUsersTable := `
+	CREATE TABLE IF NOT EXISTS users (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		email TEXT NOT NULL UNIQUE,
+		password TEXT NOT NULL
+	)
+	`
+
+	_, err = DB.Exec(createUsersTable)
+
+	if err != nil {
+		panic(fmt.Sprintf("Could not create users table: %v", err))
+	}
+
+	createRegistrationsTable := `
+	CREATE TABLE IF NOT EXISTS registrations (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		event_id INTEGER,
+		user_id INTEGER,
+		FOREIGN KEY(event_id) REFERENCES events(id),
+		FOREIGN KEY(user_id) REFERENCES users(id)
+	)
+	`
+
+	_, err = DB.Exec(createRegistrationsTable)
+
+	if err != nil {
+		panic("Could not create registrations table.")
+	}
+
 }
+
